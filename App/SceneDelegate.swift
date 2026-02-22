@@ -3,7 +3,7 @@ import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: AppWindow?
-
+    
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
@@ -11,7 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
         let appWindow = AppWindow(windowScene: windowScene)
-        appWindow.configure(with: SplashView())
+        appWindow.configure(with: MainRoute())
         self.window = appWindow
     }
 }

@@ -1,8 +1,16 @@
+// MAC
 .DS_Store
+
+// Xcode
 *.xcuserstate
 xcuserdata/
 DerivedData/
 .build/
 *.resolved
+
+// Dependency Manager
 Pods/
 .swiftpm/
+
+// Git
+.gitkeep
