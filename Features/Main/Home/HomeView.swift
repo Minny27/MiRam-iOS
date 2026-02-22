@@ -1,12 +1,23 @@
 import SwiftUI
 import SwiftData
 
+private enum AlarmSheet: Identifiable {
+    case add
+    case edit(Alarm)
+
+    var id: String {
+        switch self {
+        case .add: return "add"
+        case .edit(let alarm): return alarm.id.uuidString
+        }
+    }
+}
+
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @Environment(\.modelContext) private var modelContext
     @Query(sort: [SortDescriptor(\Alarm.hour), SortDescriptor(\Alarm.minute)]) private var alarms: [Alarm]
-    @State private var showAddAlarm = false
-    @State private var alarmToEdit: Alarm? = nil
+    @State private var activeSheet: AlarmSheet? = nil
 
     var body: some View {
         Group {
@@ -20,17 +31,19 @@ struct HomeView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    showAddAlarm = true
+                    activeSheet = .add
                 } label: {
                     Image(systemName: "plus")
                 }
             }
         }
-        .sheet(isPresented: $showAddAlarm) {
-            AlarmDetailView(mode: .add)
-        }
-        .sheet(item: $alarmToEdit) { alarm in
-            AlarmDetailView(mode: .edit(alarm))
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .add:
+                AlarmDetailView(mode: .add)
+            case .edit(let alarm):
+                AlarmDetailView(mode: .edit(alarm))
+            }
         }
     }
 
@@ -47,20 +60,12 @@ struct HomeView: View {
     private var alarmList: some View {
         List {
             ForEach(alarms) { alarm in
-                AlarmRowView(alarm: alarm) {
-                    viewModel.toggleEnabled(alarm, context: modelContext)
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    alarmToEdit = alarm
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    Button(role: .destructive) {
-                        viewModel.deleteAlarm(alarm, context: modelContext)
-                    } label: {
-                        Label("삭제", systemImage: "trash")
-                    }
-                }
+                AlarmRowView(
+                    alarm: alarm,
+                    onToggle: { viewModel.toggleEnabled(alarm, context: modelContext) },
+                    onTap:   { activeSheet = .edit(alarm) },
+                    onDelete: { viewModel.deleteAlarm(alarm, context: modelContext) }
+                )
             }
         }
         .listStyle(.plain)
@@ -70,42 +75,48 @@ struct HomeView: View {
 private struct AlarmRowView: View {
     let alarm: Alarm
     let onToggle: () -> Void
-
-    private var timeColor: Color { alarm.isEnabled ? .primary : .secondary }
+    let onTap: () -> Void
+    let onDelete: () -> Void
 
     var body: some View {
-        HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 4) {
-                // 시간 + AM/PM
-                HStack(alignment: .bottom, spacing: 6) {
+        HStack(alignment: .center, spacing: 12) {
+            // 시간 + AM/PM + 라벨 + 요일
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .lastTextBaseline, spacing: 6) {
                     Text(alarm.twelveHourTimeString)
                         .font(.system(size: 48, weight: .thin, design: .monospaced))
-                        .foregroundStyle(timeColor)
+                        .foregroundStyle(alarm.isEnabled ? Color.primary : Color.secondary)
                     Text(alarm.amPm)
                         .font(.title3.bold())
-                        .foregroundStyle(timeColor)
-                        .padding(.bottom, 6)
+                        .foregroundStyle(alarm.isEnabled ? Color.primary : Color.secondary)
                 }
 
-                // 라벨
-                Text(alarm.label.isEmpty ? "라벨 없음" : alarm.label)
+                Text(alarm.label.isEmpty ? String(localized: "알람") : alarm.label)
                     .font(.subheadline)
-                    .foregroundStyle(alarm.label.isEmpty ? .tertiary : .secondary)
+                    .foregroundStyle(alarm.label.isEmpty ? Color.accentColor : Color.secondary)
 
-                // 반복 요일
                 if !alarm.repeatDays.isEmpty {
                     Text(alarm.repeatDays.map(\.label).joined(separator: " "))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.secondary)
                 }
             }
+
             Spacer()
+
             Toggle("", isOn: Binding(
                 get: { alarm.isEnabled },
                 set: { _ in onToggle() }
             ))
             .labelsHidden()
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .onTapGesture { onTap() }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive, action: onDelete) {
+                Label("삭제", systemImage: "trash")
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ final class Alarm {
     /// 초 단위 (5~3600)
     var ringDuration: Int
     /// AlarmSound.id (예: "classic", "bell", ...)
-    var soundName: String
+    var soundName: String = "classic"
     var createdAt: Date
 
     init(

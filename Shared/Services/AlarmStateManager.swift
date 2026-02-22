@@ -29,7 +29,10 @@ final class AlarmStateManager: ObservableObject {
             else { return }
             let soundName = userInfo["soundName"] as? String ?? AlarmSound.default.id
             Task { @MainActor [weak self] in
-                self?.firingAlarm = FiringAlarm(
+                guard let self else { return }
+                // 이미 같은 알람이 울리고 있으면 중복 발화 무시
+                guard self.firingAlarm?.id != alarmId else { return }
+                self.firingAlarm = FiringAlarm(
                     id: alarmId,
                     soundName: soundName,
                     ringDuration: ringDuration

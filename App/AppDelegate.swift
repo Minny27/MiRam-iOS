@@ -8,9 +8,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
-//        Task {
-//            await DIContainer.shared.alarmScheduler.requestAuthorization()
-//        }
+        Task {
+            try? await UNUserNotificationCenter.current().requestAuthorization(
+                options: [.alert, .sound, .badge]
+            )
+        }
         return true
     }
 
@@ -24,32 +26,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    // 앱 포그라운드 상태에서도 알림 표시
+    /// 앱이 포그라운드 상태일 때 알림 수신 → 즉시 알람 화면 표시 (배너 생략)
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        completionHandler([.banner, .sound, .badge])
+        fireAlarm(from: notification.request.content.userInfo)
+        completionHandler([]) // 배너 없이 AlarmRingingView가 처리
     }
 
-    // 알림 탭 → AlarmRinging 화면으로 이동
+    /// 백그라운드에서 알림을 탭했을 때
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        let userInfo = response.notification.request.content.userInfo
-        if let alarmId = userInfo["alarmId"] as? String,
-           let ringDuration = userInfo["ringDuration"] as? Int {
-            let soundName = userInfo["soundName"] as? String ?? AlarmSound.default.id
-            NotificationCenter.default.post(
-                name: .alarmDidFire,
-                object: nil,
-                userInfo: ["alarmId": alarmId, "ringDuration": ringDuration, "soundName": soundName]
-            )
-        }
+        fireAlarm(from: response.notification.request.content.userInfo)
         completionHandler()
+    }
+
+    func fireAlarm(from userInfo: [AnyHashable: Any]) {
+        guard let alarmId = userInfo["alarmId"] as? String,
+              let ringDuration = userInfo["ringDuration"] as? Int else { return }
+        let soundName = userInfo["soundName"] as? String ?? AlarmSound.default.id
+        NotificationCenter.default.post(
+            name: .alarmDidFire,
+            object: nil,
+            userInfo: ["alarmId": alarmId, "ringDuration": ringDuration, "soundName": soundName]
+        )
     }
 }
 

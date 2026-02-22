@@ -1,7 +1,6 @@
 import Foundation
 import Combine
 import AVFoundation
-import AudioToolbox
 
 @MainActor
 final class AlarmRingingViewModel: ObservableObject {
@@ -12,7 +11,7 @@ final class AlarmRingingViewModel: ObservableObject {
     private let ringDuration: Int
     private var timerCancellable: AnyCancellable?
     private var audioPlayer: AVAudioPlayer?
-    private var soundLoopTimer: Timer?
+    private var audioEngine: AVAudioEngine?
 
     init(soundName: String, ringDuration: Int) {
         self.sound = AlarmSound.named(soundName)
@@ -56,40 +55,71 @@ final class AlarmRingingViewModel: ObservableObject {
     }
 
     private func startAudio() {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(
-                .playback,
-                mode: .default,
-                options: [.mixWithOthers]
-            )
-            try AVAudioSession.sharedInstance().setActive(true)
+        // .playback 카테고리: 무음 모드에서도 재생
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        try? AVAudioSession.sharedInstance().setActive(true)
 
-            if let url = sound.bundleURL {
-                // 번들에 커스텀 사운드 파일이 있으면 AVAudioPlayer로 루프 재생
-                audioPlayer = try AVAudioPlayer(contentsOf: url)
-                audioPlayer?.numberOfLoops = -1
-                audioPlayer?.play()
-            } else {
-                // 번들 파일 없음 → AudioServicesPlaySystemSound 루프 (2초 간격)
-                startSystemSoundLoop()
-            }
-        } catch {
-            startSystemSoundLoop()
+        // 번들 파일이 있으면 AVAudioPlayer로 루프 재생
+        if let url = sound.bundleURL,
+           let player = try? AVAudioPlayer(contentsOf: url) {
+            player.numberOfLoops = -1
+            player.play()
+            audioPlayer = player
+            return
         }
+
+        // 번들 파일 없음 → AVAudioEngine으로 알람 비프음 합성
+        startSynthesizedTone()
     }
 
-    private func startSystemSoundLoop() {
-        sound.playOnce()
-        soundLoopTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            self?.sound.playOnce()
+    /// AVAudioEngine으로 880Hz 비프(0.4s on / 0.6s off) 패턴을 루프 재생
+    private func startSynthesizedTone() {
+        let engine = AVAudioEngine()
+        let mixer = engine.mainMixerNode
+        let sampleRate = mixer.outputFormat(forBus: 0).sampleRate
+
+        let beepDur  = 0.4
+        let totalDur = 1.0   // 0.4s 비프 + 0.6s 무음
+        let totalFrames = Int(sampleRate * totalDur)
+        let beepFrames  = Int(sampleRate * beepDur)
+        let freq = 880.0
+
+        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format,
+                                            frameCapacity: AVAudioFrameCount(totalFrames)) else { return }
+        buffer.frameLength = AVAudioFrameCount(totalFrames)
+
+        let ptr = buffer.floatChannelData![0]
+        for i in 0..<totalFrames {
+            if i < beepFrames {
+                // 앞뒤 10ms 페이드로 클릭 노이즈 제거
+                let fadeLen = sampleRate * 0.01
+                let env = min(Double(i) / fadeLen, 1.0) * min(Double(beepFrames - i) / fadeLen, 1.0)
+                ptr[i] = Float(sin(2.0 * .pi * freq * Double(i) / sampleRate) * env * 0.8)
+            } else {
+                ptr[i] = 0.0
+            }
+        }
+
+        let playerNode = AVAudioPlayerNode()
+        engine.attach(playerNode)
+        engine.connect(playerNode, to: mixer, format: format)
+
+        do {
+            try engine.start()
+            playerNode.scheduleBuffer(buffer, at: nil, options: .loops)
+            playerNode.play()
+            audioEngine = engine
+        } catch {
+            // 엔진 시작 실패 시 무시 (알림 사운드가 이미 울렸으므로 UI는 정상 동작)
         }
     }
 
     private func stopAudio() {
-        soundLoopTimer?.invalidate()
-        soundLoopTimer = nil
         audioPlayer?.stop()
         audioPlayer = nil
+        audioEngine?.stop()
+        audioEngine = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 }
