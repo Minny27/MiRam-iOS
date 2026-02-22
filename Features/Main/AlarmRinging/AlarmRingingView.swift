@@ -2,15 +2,20 @@ import SwiftUI
 
 struct AlarmRingingView: View {
     let alarmId: String
+    let soundName: String
     let ringDuration: Int
+    let onDismiss: () -> Void
 
     @StateObject private var viewModel: AlarmRingingViewModel
-    @Environment(\.dismiss) private var dismiss
 
-    init(alarmId: String, ringDuration: Int) {
+    init(alarmId: String, soundName: String, ringDuration: Int, onDismiss: @escaping () -> Void) {
         self.alarmId = alarmId
+        self.soundName = soundName
         self.ringDuration = ringDuration
-        _viewModel = StateObject(wrappedValue: AlarmRingingViewModel(ringDuration: ringDuration))
+        self.onDismiss = onDismiss
+        _viewModel = StateObject(
+            wrappedValue: AlarmRingingViewModel(soundName: soundName, ringDuration: ringDuration)
+        )
     }
 
     var body: some View {
@@ -20,13 +25,11 @@ struct AlarmRingingView: View {
             VStack(spacing: 40) {
                 Spacer()
 
-                // 알람 아이콘
                 Image(systemName: "alarm.fill")
                     .font(.system(size: 80))
                     .foregroundStyle(.orange)
                     .symbolEffect(.pulse, options: .repeating)
 
-                // 남은 시간
                 VStack(spacing: 8) {
                     Text("알람")
                         .font(.title2)
@@ -35,7 +38,6 @@ struct AlarmRingingView: View {
                         .font(.system(size: 48, weight: .thin, design: .monospaced))
                 }
 
-                // 진행 바
                 ProgressView(value: viewModel.progressFraction)
                     .progressViewStyle(.linear)
                     .tint(.orange)
@@ -43,7 +45,6 @@ struct AlarmRingingView: View {
 
                 Spacer()
 
-                // 해제 버튼
                 Button {
                     viewModel.dismiss()
                 } label: {
@@ -61,7 +62,7 @@ struct AlarmRingingView: View {
         }
         .navigationBarHidden(true)
         .onChange(of: viewModel.isDismissed) { _, dismissed in
-            if dismissed { dismiss() }
+            if dismissed { onDismiss() }
         }
     }
 }

@@ -1,17 +1,21 @@
 import Foundation
 import Combine
 import AVFoundation
+import AudioToolbox
 
 @MainActor
 final class AlarmRingingViewModel: ObservableObject {
     @Published var remainingSeconds: Int
     @Published var isDismissed = false
 
+    private let sound: AlarmSound
     private let ringDuration: Int
     private var timerCancellable: AnyCancellable?
     private var audioPlayer: AVAudioPlayer?
+    private var soundLoopTimer: Timer?
 
-    init(ringDuration: Int) {
+    init(soundName: String, ringDuration: Int) {
+        self.sound = AlarmSound.named(soundName)
         self.ringDuration = ringDuration
         self.remainingSeconds = ringDuration
         startAudio()
@@ -23,6 +27,13 @@ final class AlarmRingingViewModel: ObservableObject {
         stopAudio()
         isDismissed = true
     }
+
+    var progressFraction: Double {
+        guard ringDuration > 0 else { return 0 }
+        return Double(remainingSeconds) / Double(ringDuration)
+    }
+
+    var remainingLabel: String { RingDuration.label(for: remainingSeconds) }
 
     // MARK: - Private
 
@@ -45,34 +56,40 @@ final class AlarmRingingViewModel: ObservableObject {
     }
 
     private func startAudio() {
-        guard let url = Bundle.main.url(forResource: "alarm", withExtension: "mp3")
-                ?? Bundle.main.url(forResource: "alarm", withExtension: "caf") else {
-            // 시스템 사운드 fallback은 UNNotification이 처리
-            return
-        }
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .default,
+                options: [.mixWithOthers]
+            )
             try AVAudioSession.sharedInstance().setActive(true)
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.numberOfLoops = -1
-            audioPlayer?.play()
+
+            if let url = sound.bundleURL {
+                // 번들에 커스텀 사운드 파일이 있으면 AVAudioPlayer로 루프 재생
+                audioPlayer = try AVAudioPlayer(contentsOf: url)
+                audioPlayer?.numberOfLoops = -1
+                audioPlayer?.play()
+            } else {
+                // 번들 파일 없음 → AudioServicesPlaySystemSound 루프 (2초 간격)
+                startSystemSoundLoop()
+            }
         } catch {
-            // 오디오 재생 실패 시 무음으로 진행
+            startSystemSoundLoop()
+        }
+    }
+
+    private func startSystemSoundLoop() {
+        sound.playOnce()
+        soundLoopTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            self?.sound.playOnce()
         }
     }
 
     private func stopAudio() {
+        soundLoopTimer?.invalidate()
+        soundLoopTimer = nil
         audioPlayer?.stop()
         audioPlayer = nil
-        try? AVAudioSession.sharedInstance().setActive(false)
-    }
-
-    var progressFraction: Double {
-        guard ringDuration > 0 else { return 0 }
-        return Double(remainingSeconds) / Double(ringDuration)
-    }
-
-    var remainingLabel: String {
-        RingDuration.label(for: remainingSeconds)
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 }

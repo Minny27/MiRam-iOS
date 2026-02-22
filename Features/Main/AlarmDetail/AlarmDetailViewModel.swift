@@ -1,5 +1,5 @@
 import Foundation
-import SwiftUI
+import SwiftData
 
 enum AlarmDetailMode {
     case add
@@ -13,34 +13,36 @@ final class AlarmDetailViewModel: ObservableObject {
     @Published var label: String
     @Published var selectedDays: Set<Weekday>
     @Published var ringDuration: Int
+    @Published var soundName: String
     @Published var errorMessage: String?
 
     private let mode: AlarmDetailMode
-    private let repository: AlarmRepository
+    private let scheduler = AlarmScheduler()
 
-    init(mode: AlarmDetailMode, repository: AlarmRepository = DIContainer.shared.alarmRepository) {
+    init(mode: AlarmDetailMode) {
         self.mode = mode
-        self.repository = repository
 
         switch mode {
         case .add:
-            let calendar = Calendar.current
             let now = Date()
-            hour = calendar.component(.hour, from: now)
-            minute = calendar.component(.minute, from: now)
+            let cal = Calendar.current
+            hour = cal.component(.hour, from: now)
+            minute = cal.component(.minute, from: now)
             label = ""
             selectedDays = []
             ringDuration = 60
+            soundName = AlarmSound.default.id
         case .edit(let alarm):
             hour = alarm.hour
             minute = alarm.minute
             label = alarm.label
             selectedDays = Set(alarm.repeatDays)
             ringDuration = alarm.ringDuration
+            soundName = alarm.soundName
         }
     }
 
-    func save() throws {
+    func save(context: ModelContext) throws {
         switch mode {
         case .add:
             let alarm = Alarm(
@@ -49,16 +51,22 @@ final class AlarmDetailViewModel: ObservableObject {
                 repeatDays: Array(selectedDays),
                 label: label,
                 isEnabled: true,
-                ringDuration: ringDuration
+                ringDuration: ringDuration,
+                soundName: soundName
             )
-            try repository.add(alarm)
+            context.insert(alarm)
+            try context.save()
+            scheduler.schedule(alarm)
         case .edit(let alarm):
             alarm.hour = hour
             alarm.minute = minute
             alarm.repeatDays = Array(selectedDays)
             alarm.label = label
             alarm.ringDuration = ringDuration
-            try repository.update(alarm)
+            alarm.soundName = soundName
+            try context.save()
+            scheduler.cancel(alarm)
+            scheduler.schedule(alarm)
         }
     }
 }

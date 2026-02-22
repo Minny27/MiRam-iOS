@@ -8,9 +8,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
-        Task {
-            await DIContainer.shared.alarmScheduler.requestAuthorization()
-        }
+//        Task {
+//            await DIContainer.shared.alarmScheduler.requestAuthorization()
+//        }
         return true
     }
 
@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    // 앱이 포그라운드 상태일 때도 알림 배너 표시
+    // 앱 포그라운드 상태에서도 알림 표시
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
@@ -42,10 +42,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         let userInfo = response.notification.request.content.userInfo
         if let alarmId = userInfo["alarmId"] as? String,
            let ringDuration = userInfo["ringDuration"] as? Int {
+            let soundName = userInfo["soundName"] as? String ?? AlarmSound.default.id
             NotificationCenter.default.post(
                 name: .alarmDidFire,
                 object: nil,
-                userInfo: ["alarmId": alarmId, "ringDuration": ringDuration]
+                userInfo: ["alarmId": alarmId, "ringDuration": ringDuration, "soundName": soundName]
             )
         }
         completionHandler()

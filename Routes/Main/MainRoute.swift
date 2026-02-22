@@ -3,10 +3,9 @@ import SwiftUI
 enum MainDestination: Hashable {
     case home
     case alarmDetail(AlarmDetailMode)
-    case alarmRinging(alarmId: String, ringDuration: Int)
 }
 
-// AlarmDetailMode는 Equatable/Hashable 필요
+// AlarmDetailMode Hashable 적합
 extension AlarmDetailMode: Hashable {
     static func == (lhs: AlarmDetailMode, rhs: AlarmDetailMode) -> Bool {
         switch (lhs, rhs) {
@@ -24,6 +23,7 @@ extension AlarmDetailMode: Hashable {
 }
 
 struct MainRoute: View {
+    @EnvironmentObject private var alarmStateManager: AlarmStateManager
     @State private var path = NavigationPath()
 
     var body: some View {
@@ -35,10 +35,17 @@ struct MainRoute: View {
                         HomeView()
                     case .alarmDetail(let mode):
                         AlarmDetailView(mode: mode)
-                    case .alarmRinging(let alarmId, let ringDuration):
-                        AlarmRingingView(alarmId: alarmId, ringDuration: ringDuration)
                     }
                 }
+        }
+        // 알람 발화 시 전체 화면으로 AlarmRingingView 표시
+        .fullScreenCover(item: $alarmStateManager.firingAlarm) { info in
+            AlarmRingingView(
+                alarmId: info.id,
+                soundName: info.soundName,
+                ringDuration: info.ringDuration,
+                onDismiss: { alarmStateManager.firingAlarm = nil }
+            )
         }
     }
 }

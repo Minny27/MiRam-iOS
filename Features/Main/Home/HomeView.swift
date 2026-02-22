@@ -1,12 +1,16 @@
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: [SortDescriptor(\Alarm.hour), SortDescriptor(\Alarm.minute)]) private var alarms: [Alarm]
     @State private var showAddAlarm = false
+    @State private var alarmToEdit: Alarm? = nil
 
     var body: some View {
         Group {
-            if viewModel.alarms.isEmpty {
+            if alarms.isEmpty {
                 emptyState
             } else {
                 alarmList
@@ -22,10 +26,12 @@ struct HomeView: View {
                 }
             }
         }
-        .sheet(isPresented: $showAddAlarm, onDismiss: { viewModel.loadAlarms() }) {
+        .sheet(isPresented: $showAddAlarm) {
             AlarmDetailView(mode: .add)
         }
-        .onAppear { viewModel.loadAlarms() }
+        .sheet(item: $alarmToEdit) { alarm in
+            AlarmDetailView(mode: .edit(alarm))
+        }
     }
 
     private var emptyState: some View {
@@ -40,17 +46,17 @@ struct HomeView: View {
 
     private var alarmList: some View {
         List {
-            ForEach(viewModel.alarms) { alarm in
+            ForEach(alarms) { alarm in
                 AlarmRowView(alarm: alarm) {
-                    viewModel.toggleEnabled(alarm)
+                    viewModel.toggleEnabled(alarm, context: modelContext)
                 }
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    // navigate to detail handled via NavigationLink in parent
+                    alarmToEdit = alarm
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
-                        viewModel.deleteAlarm(alarm)
+                        viewModel.deleteAlarm(alarm, context: modelContext)
                     } label: {
                         Label("삭제", systemImage: "trash")
                     }
@@ -65,17 +71,28 @@ private struct AlarmRowView: View {
     let alarm: Alarm
     let onToggle: () -> Void
 
+    private var timeColor: Color { alarm.isEnabled ? .primary : .secondary }
+
     var body: some View {
-        HStack {
+        HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(alarm.timeString)
-                    .font(.system(size: 40, weight: .thin, design: .monospaced))
-                    .foregroundStyle(alarm.isEnabled ? .primary : .secondary)
-                if !alarm.label.isEmpty {
-                    Text(alarm.label)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                // 시간 + AM/PM
+                HStack(alignment: .bottom, spacing: 6) {
+                    Text(alarm.twelveHourTimeString)
+                        .font(.system(size: 48, weight: .thin, design: .monospaced))
+                        .foregroundStyle(timeColor)
+                    Text(alarm.amPm)
+                        .font(.title3.bold())
+                        .foregroundStyle(timeColor)
+                        .padding(.bottom, 6)
                 }
+
+                // 라벨
+                Text(alarm.label.isEmpty ? "라벨 없음" : alarm.label)
+                    .font(.subheadline)
+                    .foregroundStyle(alarm.label.isEmpty ? .tertiary : .secondary)
+
+                // 반복 요일
                 if !alarm.repeatDays.isEmpty {
                     Text(alarm.repeatDays.map(\.label).joined(separator: " "))
                         .font(.caption)
