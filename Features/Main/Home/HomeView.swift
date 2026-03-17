@@ -93,7 +93,7 @@ private struct AlarmRowView: View {
 
                 Text(alarm.label.isEmpty ? String(localized: "알람") : alarm.label)
                     .font(.subheadline)
-                    .foregroundStyle(alarm.label.isEmpty ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(alarm.label.isEmpty ? Color.secondary : Color.white)
 
                 if !alarm.repeatDays.isEmpty {
                     Text(alarm.repeatDays.map(\.label).joined(separator: " "))

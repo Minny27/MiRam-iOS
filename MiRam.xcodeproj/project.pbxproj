@@ -49,6 +49,7 @@
 		43A9073952FC21A738E71CA4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		4FDF3B0E9EE3E90D5D0CF6A7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		50B211672D8F38D38804713D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		562EAB902F5D4E83001446A6 /* MiRam.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MiRam.xcodeproj; sourceTree = SOURCE_ROOT; };
 		6896440664E0FB394B17CC84 /* AlarmSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSound.swift; sourceTree = "<group>"; };
 		71CE777E2CB1573CFF0CE872 /* AlarmRingingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRingingView.swift; sourceTree = "<group>"; };
 		7851E6DFECB908A56D593920 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
@@ -179,6 +180,7 @@
 		5E2C41799EBA74C5A031A0A1 = {
 			isa = PBXGroup;
 			children = (
+				562EAB902F5D4E83001446A6 /* MiRam.xcodeproj */,
 				279B3612D439B6C77B6C107B /* App */,
 				2CAD5BD0ED9892190A79EFC5 /* Features */,
 				233A30CBC19FC5754A664F63 /* Routes */,
