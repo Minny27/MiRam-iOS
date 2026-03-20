@@ -23,29 +23,9 @@ extension AlarmDetailMode: Hashable {
 }
 
 struct MainRoute: View {
-    @EnvironmentObject private var alarmStateManager: AlarmStateManager
-    @State private var path = NavigationPath()
-
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack {
             HomeView()
-                .navigationDestination(for: MainDestination.self) { destination in
-                    switch destination {
-                    case .home:
-                        HomeView()
-                    case .alarmDetail(let mode):
-                        AlarmDetailView(mode: mode)
-                    }
-                }
-        }
-        // 알람 발화 시 전체 화면으로 AlarmRingingView 표시
-        .fullScreenCover(item: $alarmStateManager.firingAlarm) { info in
-            AlarmRingingView(
-                alarmId: info.id,
-                soundName: info.soundName,
-                ringDuration: info.ringDuration,
-                onDismiss: { alarmStateManager.firingAlarm = nil }
-            )
         }
     }
 }

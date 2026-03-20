@@ -1,66 +1,135 @@
 import Foundation
-import UserNotifications
+import ActivityKit
+import AlarmKit
+import SwiftUI
 
 final class AlarmScheduler {
-    private let center = UNUserNotificationCenter.current()
+    enum SchedulerError: LocalizedError {
+        case authorizationDenied
+        case authorizationRejected
 
-    func requestAuthorization() async -> Bool {
-        do {
-            return try await center.requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert])
-        } catch {
-            return false
+        var errorDescription: String? {
+            switch self {
+            case .authorizationDenied:
+                return "시스템 설정에서 알람 권한이 꺼져 있습니다. 설정에서 MiRam의 알람 권한을 허용해 주세요."
+            case .authorizationRejected:
+                return "AlarmKit 권한을 허용해야 알람을 예약할 수 있습니다."
+            }
         }
     }
 
-    func schedule(_ alarm: Alarm) {
-        cancel(alarm)
-        guard alarm.isEnabled else { return }
+    private let manager = AlarmManager.shared
 
-        let content = UNMutableNotificationContent()
-        content.title = alarm.label.isEmpty ? "알람" : alarm.label
-        content.body = alarm.timeString
-        content.sound = AlarmSound.named(alarm.soundName).notificationSound
-        content.userInfo = [
-            "alarmId": alarm.id.uuidString,
-            "ringDuration": alarm.ringDuration,
-            "soundName": alarm.soundName
-        ]
+    var isAuthorizationDenied: Bool {
+        manager.authorizationState == .denied
+    }
 
-        if alarm.isOneTime {
-            scheduleOnce(alarm: alarm, content: content)
-        } else {
-            alarm.repeatDays.forEach { scheduleRepeating(alarm: alarm, weekday: $0, content: content) }
+    func requestAuthorizationIfNeeded() async throws -> Bool {
+        switch manager.authorizationState {
+        case .authorized:
+            return true
+        case .denied:
+            throw SchedulerError.authorizationDenied
+        case .notDetermined:
+            let state = try await manager.requestAuthorization()
+            guard state == .authorized else {
+                throw SchedulerError.authorizationRejected
+            }
+            return true
+        @unknown default:
+            throw SchedulerError.authorizationRejected
         }
+    }
+
+    func schedule(_ alarm: Alarm) async throws {
+        guard alarm.isEnabled else {
+            cancel(alarm)
+            return
+        }
+
+        _ = try await requestAuthorizationIfNeeded()
+        cancel(alarm)
+
+        let attributes = AlarmAttributes(
+            presentation: AlarmPresentation(alert: makeAlertPresentation()),
+            metadata: MiRamAlarmMetadata(
+                title: alarm.displayLabel,
+                repeatDescription: alarm.repeatDescription,
+                ringDuration: RingDuration.normalize(alarm.ringDuration)
+            ),
+            tintColor: .orange
+        )
+
+        let configuration = AlarmManager.AlarmConfiguration(
+            countdownDuration: .init(
+                preAlert: nil,
+                postAlert: TimeInterval(RingDuration.normalize(alarm.ringDuration))
+            ),
+            schedule: makeSchedule(for: alarm),
+            attributes: attributes,
+            sound: alertSound(for: alarm)
+        )
+
+        _ = try await manager.schedule(id: alarm.id, configuration: configuration)
     }
 
     func cancel(_ alarm: Alarm) {
-        var ids = [oneTimeIdentifier(alarm)]
-        Weekday.allCases.forEach { ids.append(repeatingIdentifier(alarm, weekday: $0)) }
-        center.removePendingNotificationRequests(withIdentifiers: ids)
-        center.removeDeliveredNotifications(withIdentifiers: ids)
+        try? manager.cancel(id: alarm.id)
     }
 
-    // MARK: - Private
+    private func makeSchedule(for alarm: Alarm) -> AlarmKit.Alarm.Schedule {
+        if alarm.repeatDays.isEmpty {
+            return .fixed(alarm.nextTriggerDate())
+        }
 
-    private func scheduleOnce(alarm: Alarm, content: UNMutableNotificationContent) {
-        var components = DateComponents()
-        components.hour = alarm.hour
-        components.minute = alarm.minute
-        components.second = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-        center.add(UNNotificationRequest(identifier: oneTimeIdentifier(alarm), content: content, trigger: trigger)) { _ in }
+        return .relative(
+            .init(
+                time: .init(hour: alarm.hour, minute: alarm.minute),
+                repeats: .weekly(alarm.repeatDays.map(\.localeWeekday))
+            )
+        )
     }
 
-    private func scheduleRepeating(alarm: Alarm, weekday: Weekday, content: UNMutableNotificationContent) {
-        var components = DateComponents()
-        components.weekday = weekday.calendarWeekday
-        components.hour = alarm.hour
-        components.minute = alarm.minute
-        components.second = 0
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-        center.add(UNNotificationRequest(identifier: repeatingIdentifier(alarm, weekday: weekday), content: content, trigger: trigger)) { _ in }
+    private func makeAlertPresentation() -> AlarmPresentation.Alert {
+        if #available(iOS 26.1, *) {
+            return .init(title: "MiRam 알람")
+        }
+
+        return .init(
+            title: "MiRam 알람",
+            stopButton: AlarmButton(
+                text: "중지",
+                textColor: .white,
+                systemImageName: "stop.circle.fill"
+            )
+        )
     }
 
-    private func oneTimeIdentifier(_ alarm: Alarm) -> String { "\(alarm.id.uuidString)-once" }
-    private func repeatingIdentifier(_ alarm: Alarm, weekday: Weekday) -> String { "\(alarm.id.uuidString)-repeat-\(weekday.rawValue)" }
+    private func alertSound(for alarm: Alarm) -> AlertConfiguration.AlertSound {
+        let sound = AlarmSound.named(alarm.soundName)
+        if Bundle.main.url(forResource: sound.id, withExtension: "caf") != nil {
+            return .named("\(sound.id).caf")
+        }
+        return .default
+    }
+}
+
+private struct MiRamAlarmMetadata: AlarmMetadata {
+    let title: String
+    let repeatDescription: String
+    let ringDuration: Int
+}
+
+private extension Weekday {
+    var localeWeekday: Locale.Weekday {
+        switch self {
+        case .sun: return .sunday
+        case .mon: return .monday
+        case .tue: return .tuesday
+        case .wed: return .wednesday
+        case .thu: return .thursday
+        case .fri: return .friday
+        case .sat: return .saturday
+        }
+    }
 }

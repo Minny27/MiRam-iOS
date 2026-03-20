@@ -2,7 +2,7 @@ name: MiRam
 options:
   bundleIdPrefix: com.seungmin
   deploymentTarget:
-    iOS: "17.0"
+    iOS: "26.0"
   createIntermediateGroups: true
   groupSortPosition: top
 
@@ -16,7 +16,7 @@ targets:
   MiRam:
     type: application
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "26.0"
     sources:
       - path: App
       - path: Features
@@ -31,6 +31,8 @@ targets:
         SWIFT_EMIT_LOC_STRINGS: YES
         LAUNCH_SCREEN_STORYBOARD_NAME: LaunchScreen
     dependencies:
+      - sdk: AlarmKit.framework
+      - sdk: ActivityKit.framework
       - sdk: UserNotifications.framework
       - sdk: AVFoundation.framework
     info:
@@ -45,6 +47,8 @@ targets:
         UILaunchStoryboardName: LaunchScreen
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        UIRequiresFullScreen: true
         NSUserNotificationsUsageDescription: "알람을 울리기 위해 알림 권한이 필요합니다."
+        NSAlarmKitUsageDescription: "MiRam이 백그라운드에서도 정확한 시간에 알람을 예약하도록 허용해 주세요."
         UIBackgroundModes:
           - audio

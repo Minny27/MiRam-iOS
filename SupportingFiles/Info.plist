@@ -20,6 +20,8 @@
 	<string>1</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>알람을 울리기 위해 알림 권한이 필요합니다.</string>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>MiRam이 백그라운드에서도 정확한 시간에 알람을 예약하도록 허용해 주세요.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationIsSceneBasedApplication</key>

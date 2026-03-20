@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1202727FA6FB731C24A84AF3 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC4C25B755A249030702DAD /* AuthViewModel.swift */; };
+		2808855E92F765B64535F0BA /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43A79A8BE8F296F0498F3E17 /* ActivityKit.framework */; };
 		3EF3017BC86C9BCF9A5E58D0 /* AlarmDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8A2E79C0942F6137DE1DCC /* AlarmDetailViewModel.swift */; };
 		4C352F8AA5E8CCFCF5087175 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FDF3B0E9EE3E90D5D0CF6A7 /* LaunchScreen.storyboard */; };
 		551A42BBCE235D1D8059C97B /* AppWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1B6A8365263DF3094A5F91 /* AppWindow.swift */; };
@@ -24,6 +25,7 @@
 		AD6660A5E8E7BC11BE8C4098 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB9F34B74495EB11707A116 /* Weekday.swift */; };
 		B37957AEDE5335382E19EFBB /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AB71006EE9F26C394B15B4 /* Alarm.swift */; };
 		BAB91CCDF15CC3C2C30C5C7D /* AlarmDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB29DA5006E02E6E65DBF882 /* AlarmDetailView.swift */; };
+		BB5F315F27CDAD75C3A83738 /* AlarmKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0734A1BAB584DE38B58FC329 /* AlarmKit.framework */; };
 		BE4A2FCEDC01B9AE398F4ED0 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3446E351CB789125D361B39 /* AuthView.swift */; };
 		C30E1871215F76C90C9E353B /* AlarmRingingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71CE777E2CB1573CFF0CE872 /* AlarmRingingView.swift */; };
 		CBE3E53383410044268A5449 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A9073952FC21A738E71CA4 /* SceneDelegate.swift */; };
@@ -31,6 +33,7 @@
 		CE7780FB7C3605F42B08AE16 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14C70060F67325A433A94BEB /* UserNotifications.framework */; };
 		D582B6F597A4625812402872 /* RingDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 968C79A0AADDB7101CF60916 /* RingDuration.swift */; };
 		DB63D17BD2D21F7B995161F3 /* AlarmSound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6896440664E0FB394B17CC84 /* AlarmSound.swift */; };
+		E63DB56D5E25075A99A7D468 /* AlarmSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A9331A3B56A2657A4A3928 /* AlarmSchedule.swift */; };
 		E6B06A394F1C0D7175C5838D /* MainRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B901D6A48C779A7519F06F /* MainRoute.swift */; };
 		F02A41CC2C957CB3B40CA156 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87EEA101D10CE006658887D /* HomeView.swift */; };
 		F3EE2C0EFF8FC9F0116F3E1D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B211672D8F38D38804713D /* AVFoundation.framework */; };
@@ -40,21 +43,23 @@
 		021B7DFF28D227B3710F8282 /* MiRam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiRam.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		03DD2CA985EE086572826ED8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0460DC9F58890BCE171DB36F /* AlarmRingingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRingingViewModel.swift; sourceTree = "<group>"; };
+		0734A1BAB584DE38B58FC329 /* AlarmKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AlarmKit.framework; path = System/Library/Frameworks/AlarmKit.framework; sourceTree = SDKROOT; };
 		14BAED0A421FCBF2D7F38A9F /* AlarmScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmScheduler.swift; sourceTree = "<group>"; };
 		14C70060F67325A433A94BEB /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		166822614ACB23186D337526 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		1A8A2E79C0942F6137DE1DCC /* AlarmDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmDetailViewModel.swift; sourceTree = "<group>"; };
 		269DB86B1AC22C7BB8635E15 /* AuthRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRoute.swift; sourceTree = "<group>"; };
 		2D1464C2BCD7A2BE495E535A /* AlarmStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmStateManager.swift; sourceTree = "<group>"; };
+		43A79A8BE8F296F0498F3E17 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
 		43A9073952FC21A738E71CA4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		4FDF3B0E9EE3E90D5D0CF6A7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		50B211672D8F38D38804713D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		562EAB902F5D4E83001446A6 /* MiRam.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MiRam.xcodeproj; sourceTree = SOURCE_ROOT; };
 		6896440664E0FB394B17CC84 /* AlarmSound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSound.swift; sourceTree = "<group>"; };
 		71CE777E2CB1573CFF0CE872 /* AlarmRingingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRingingView.swift; sourceTree = "<group>"; };
 		7851E6DFECB908A56D593920 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		78A7C820721F52C1D3DB52E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7BF5FD6CE77D6AE9FCA9DE20 /* AlarmRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRepository.swift; sourceTree = "<group>"; };
+		86A9331A3B56A2657A4A3928 /* AlarmSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSchedule.swift; sourceTree = "<group>"; };
 		8D1B6A8365263DF3094A5F91 /* AppWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppWindow.swift; sourceTree = "<group>"; };
 		8E65B9FD5E7D2A052BD30C84 /* .gitkeep */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitkeep; sourceTree = "<group>"; };
 		8E7098264E3BD9ACBE3437EC /* .gitkeep */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitkeep; sourceTree = "<group>"; };
@@ -76,6 +81,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB5F315F27CDAD75C3A83738 /* AlarmKit.framework in Frameworks */,
+				2808855E92F765B64535F0BA /* ActivityKit.framework in Frameworks */,
 				CE7780FB7C3605F42B08AE16 /* UserNotifications.framework in Frameworks */,
 				F3EE2C0EFF8FC9F0116F3E1D /* AVFoundation.framework in Frameworks */,
 			);
@@ -180,7 +187,6 @@
 		5E2C41799EBA74C5A031A0A1 = {
 			isa = PBXGroup;
 			children = (
-				562EAB902F5D4E83001446A6 /* MiRam.xcodeproj */,
 				279B3612D439B6C77B6C107B /* App */,
 				2CAD5BD0ED9892190A79EFC5 /* Features */,
 				233A30CBC19FC5754A664F63 /* Routes */,
@@ -232,6 +238,7 @@
 			isa = PBXGroup;
 			children = (
 				C5AB71006EE9F26C394B15B4 /* Alarm.swift */,
+				86A9331A3B56A2657A4A3928 /* AlarmSchedule.swift */,
 				6896440664E0FB394B17CC84 /* AlarmSound.swift */,
 				968C79A0AADDB7101CF60916 /* RingDuration.swift */,
 				DCB9F34B74495EB11707A116 /* Weekday.swift */,
@@ -266,6 +273,8 @@
 		CBEEAE6AA11C7B9485879836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				43A79A8BE8F296F0498F3E17 /* ActivityKit.framework */,
+				0734A1BAB584DE38B58FC329 /* AlarmKit.framework */,
 				50B211672D8F38D38804713D /* AVFoundation.framework */,
 				14C70060F67325A433A94BEB /* UserNotifications.framework */,
 			);
@@ -296,11 +305,11 @@
 		23884B0DEEADCA38F98130DE /* MiRam */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B3B844175A46EBD7F5B21EEA /* Build configuration list for PBXNativeTarget "MiRam" */;
-			buildPhases = (
-				45A9D0C6EE565723A083CE4A /* Sources */,
-				8B192032D29A3DC4330BE3FF /* Resources */,
-				A3DF17BE0F09547E19CF3B62 /* Frameworks */,
-			);
+				buildPhases = (
+					45A9D0C6EE565723A083CE4A /* Sources */,
+					8B192032D29A3DC4330BE3FF /* Resources */,
+					A3DF17BE0F09547E19CF3B62 /* Frameworks */,
+				);
 			buildRules = (
 			);
 			dependencies = (
@@ -361,6 +370,7 @@
 				CE073BFB728222D4A5BFEC11 /* AlarmRepository.swift in Sources */,
 				C30E1871215F76C90C9E353B /* AlarmRingingView.swift in Sources */,
 				89412F0C439CEFED2561AC15 /* AlarmRingingViewModel.swift in Sources */,
+				E63DB56D5E25075A99A7D468 /* AlarmSchedule.swift in Sources */,
 				9BFB2BC6226D8C94A3F9805B /* AlarmScheduler.swift in Sources */,
 				DB63D17BD2D21F7B995161F3 /* AlarmSound.swift in Sources */,
 				A683EFE57C1EBD65131C54EE /* AlarmStateManager.swift in Sources */,
@@ -437,7 +447,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -454,15 +464,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3KZP62644C;
 				INFOPLIST_FILE = SupportingFiles/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LAUNCH_SCREEN_STORYBOARD_NAME = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.seungmin.miram;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -473,12 +486,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3KZP62644C;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3KZP62644C;
 				INFOPLIST_FILE = SupportingFiles/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LAUNCH_SCREEN_STORYBOARD_NAME = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -486,7 +498,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.seungmin.miram;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Miram Dev";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -539,7 +550,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
