@@ -33,7 +33,7 @@ final class Alarm {
         self.repeatDayRaws = repeatDays.map(\.rawValue)
         self.label = label
         self.isEnabled = isEnabled
-        self.ringDuration = ringDuration
+        self.ringDuration = RingDuration.normalize(ringDuration)
         self.soundName = soundName
         self.createdAt = createdAt
     }
@@ -56,4 +56,20 @@ final class Alarm {
     var amPm: String { hour < 12 ? "AM" : "PM" }
 
     var isOneTime: Bool { repeatDays.isEmpty }
+    var displayLabel: String { label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "알람" : label }
+    var ringDurationLabel: String { RingDuration.label(for: RingDuration.normalize(ringDuration)) }
+
+    var repeatDescription: String {
+        let days = repeatDays
+        if days.isEmpty { return "안 함" }
+        if days.count == Weekday.allCases.count { return "매일" }
+        if Set(days) == Set([.mon, .tue, .wed, .thu, .fri]) { return "주중" }
+        if Set(days) == Set([.sat, .sun]) { return "주말" }
+        let labels = days.map(\.label)
+        if labels.count == 1 { return labels[0] }
+        if labels.count == 2 { return labels.joined(separator: " 및 ") }
+
+        let leading = labels.dropLast().joined(separator: ", ")
+        return "\(leading) 및 \(labels.last!)"
+    }
 }
